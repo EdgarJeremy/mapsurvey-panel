@@ -1,0 +1,25 @@
+body {
+    background-color: #ecf0f1;
+}
+.login-form {
+    height: 100%;
+}
+.container-panel {
+    margin-top: 30px;
+}
+.container-panel .segment,
+.container-panel .menu {
+    margin: 0;
+}
+.container-panel h2 {
+    margin: 10px 0;
+}
+.container-panel .ui.cards {
+    justify-content: flex-start
+}
+.container-panel .ui.card {
+    width: 171px;
+}
+.ui.button i {
+    margin: 0;
+}
