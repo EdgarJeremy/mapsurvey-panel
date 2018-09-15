@@ -8,12 +8,14 @@ export default class Login extends React.Component {
 
     state = {
         loading: true,
+        loadingText: 'Menghubungi server..',
         error: false
     }
 
     componentDidMount() {
         document.title = "Login ke MapSurvey";
         let { history } = this.props;
+        this._setLoading(true, 'Mengecek session..');
         Public.check().then((res) => {
             if (res.status) {
                 history.push('/panel');
@@ -23,8 +25,8 @@ export default class Login extends React.Component {
         });
     }
 
-    _setLoading(loading) {
-        this.setState({ loading });
+    _setLoading(loading, loadingText) {
+        this.setState({ loading, loadingText });
     }
 
     _showError() {
@@ -46,11 +48,11 @@ export default class Login extends React.Component {
     }
 
     render() {
-        const { loading, error } = this.state;
+        const { loading, loadingText, error } = this.state;
 
         return (
             <div>
-                <Wait visible={loading} text="Menghubungi Server.." />
+                <Wait visible={loading} text={loadingText} />
                 <div className='login-form'>
                     <Grid textAlign='center' style={{ height: '100vh' }} verticalAlign='middle'>
                         <Grid.Column style={{ maxWidth: 450 }}>

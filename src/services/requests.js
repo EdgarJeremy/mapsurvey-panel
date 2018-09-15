@@ -111,12 +111,44 @@ export const Objects = {
         });
     },
 
+    edit: function(data) {
+        return R({
+            basepoint: this.basepoint,
+            endpoint: `/${data.id}`,
+            method: 'PUT',
+            data
+        });
+    },
+
     delete: function(id) {
         return R({
             basepoint: this.basepoint,
             endpoint: `/${id}`,
             method: 'DELETE'
         });
+    }
+
+}
+
+export const User = {
+
+    basepoint: '/users',
+
+    index: function(limit = 5, offset = 0) {
+        return R({
+            basepoint: this.basepoint,
+            endpoint: `/?limit=${limit}&offset=${offset}`,
+            method: 'GET'
+        });
+    },
+
+    save: function(data) {
+        return R({
+            basepoint: this.basepoint,
+            endpoint: '/',
+            method: 'POST',
+            data
+        })
     }
 
 }
