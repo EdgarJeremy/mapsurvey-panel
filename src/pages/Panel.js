@@ -10,7 +10,8 @@ export default class Panel extends React.Component {
 
     state = {
         loading: true,
-        loadingText: 'Mengecek session..'
+        loadingText: 'Mengecek session..',
+        user: null
     }
 
     componentDidMount() {
@@ -20,6 +21,9 @@ export default class Panel extends React.Component {
             if (!res.status) {
                 history.push('/');
             } else {
+                this.setState({
+                    user: res.data
+                });
                 this._setLoading(false);
             }
         });
@@ -73,8 +77,8 @@ export default class Panel extends React.Component {
                     </Menu>
                     {/* Content */}
                     <Switch>
-                        <Route exact path={`${this.props.match.path}/`} render={(props) => <ObjectSub {...props} setLoading={this._setLoading.bind(this)} />} />
-                        <Route path={`${this.props.match.path}/users`} render={(props) => <UserSub {...props} setLoading={this._setLoading.bind(this)} />} />
+                        <Route exact path={`${this.props.match.path}/`} render={(props) => <ObjectSub {...props} me={this.state.user} setLoading={this._setLoading.bind(this)} />} />
+                        <Route path={`${this.props.match.path}/users`} render={(props) => <UserSub {...props} me={this.state.user} setLoading={this._setLoading.bind(this)} />} />
                     </Switch>
                 </Container>
             </div>

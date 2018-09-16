@@ -60,8 +60,12 @@ export const Public = {
             data
         }).then((res) => {
             if(res.status) {
-                localStorage.setItem('accessToken', res.data.token);
-                localStorage.setItem('refreshToken', res.data.refreshToken);
+                if(res.data.user.type === 'Administrator') {
+                    localStorage.setItem('accessToken', res.data.token);
+                    localStorage.setItem('refreshToken', res.data.refreshToken);
+                } else {
+                    res.status = false;
+                }
             }
             return res;
         });
@@ -123,7 +127,7 @@ export const Objects = {
     delete: function(id) {
         return R({
             basepoint: this.basepoint,
-            endpoint: `/${id}`,
+            endpoint: `${id}`,
             method: 'DELETE'
         });
     }
@@ -149,6 +153,23 @@ export const User = {
             method: 'POST',
             data
         })
+    },
+
+    edit: function(id, data) {
+        return R({
+            basepoint: this.basepoint,
+            endpoint: `/${id}`,
+            method: 'PUT',
+            data
+        });
+    },
+
+    delete: function(id) {
+        return R({
+            basepoint: this.basepoint,
+            endpoint: `/${id}`,
+            method: 'DELETE'
+        });
     }
 
 }

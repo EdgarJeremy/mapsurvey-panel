@@ -1,4 +1,4 @@
 {
-    "baseURL": "http://172.10.10.253:8085/api",
-    "baseBackend": "http://172.10.10.253:8085"
+    "baseURL": "http://devs.ip-dynamic.com:3001/api",
+    "baseBackend": "http://devs.ip-dynamic.com:3001"
 }

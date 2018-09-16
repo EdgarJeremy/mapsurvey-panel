@@ -1,5 +1,8 @@
 import React from 'react';
 import { Divider, Segment, Button, Icon, Table, Menu, Label, Modal, Form, Select } from 'semantic-ui-react';
+import swal from 'sweetalert';
+import moment from 'moment';
+import 'moment/locale/id';
 import { User } from '../../services/requests';
 import { inspect } from '../../services/utilities';
 
@@ -8,14 +11,30 @@ export default class UserSub extends React.Component {
     state = {
         users: [],
         total: 0,
-        limit: 10,
+        limit: 2,
         offset: 0,
         curPage: 1,
-        popupAdd: false
+        popupAdd: false,
+        popupEdit: false,
+        addType: '',
+        me: null,
+        editFields: {
+            id: null,
+            name: '',
+            username: '',
+            password: '',
+            type: ''
+        }
     }
 
     componentDidMount() {
         this._loadUserData();
+    }
+
+    componentWillReceiveProps(p) {
+        this.setState({
+            me: p.me
+        });
     }
 
     _loadUserData() {
@@ -35,9 +54,77 @@ export default class UserSub extends React.Component {
         this.setState({ popupAdd: true });
     }
 
+    _onEditPopup(user) {
+        this.setState({ popupEdit: true, editFields: user });
+    }
+
     _onSubmitAdd(e) {
+        let { addType: type } = this.state;
         let data = inspect(e.target);
+        data.type = type;
+        this.setState({ popupAdd: false });
+        this._setLoading(true, 'Menyimpan data..');
+        User.save(data).then((res) => {
+            this._setLoading(false);
+            if (res.status) {
+                swal('Konfirmasi', 'Data berhasil disimpan', 'success').then(this._loadUserData.bind(this));
+            } else {
+                swal('Error', 'Data gagal disimpan', 'error').then(this._loadUserData.bind(this));
+            }
+        });
+        this.setState({
+            addType: ''
+        });
+    }
+
+    _onSubmitEdit() {
+        let { editFields: data } = this.state;
         console.log(data);
+        this.setState({ popupEdit: false });
+        this._setLoading(true, 'Menupdate data..');
+        User.edit(data.id, data).then((res) => {
+            this._setLoading(false);
+            if (res.status) {
+                swal('Konfirmasi', 'Data berhasil diupdate', 'success').then(this._loadUserData.bind(this));
+            } else {
+                swal('Error', 'Data gagal diupdate', 'error').then(this._loadUserData.bind(this));
+            }
+        });
+        this.setState({
+            addType: '',
+            editFields: {
+                id: null,
+                name: '',
+                username: '',
+                password: '',
+                type: ''
+            }
+        });
+    }
+
+    _onDeleteUser(id) {
+        swal({
+            title: "Anda yakin?",
+            text: "Anda akan menghapus pengguna ini",
+            icon: "warning",
+            buttons: [
+                'Tidak',
+                'Ya'
+            ],
+            dangerMode: true,
+        }).then((isConfirm) => {
+            if (isConfirm) {
+                this._setLoading(true, 'Menghapus pengguna..');
+                User.delete(id).then((res) => {
+                    this._setLoading(false);
+                    if (res.status) {
+                        swal('Konfirmasi', 'Pengguna berhasil dihapus', 'success').then(this._loadUserData.bind(this));
+                    } else {
+                        swal('Error', 'Pengguna gagal disimpan', 'error').bind(this._loadUserData.bind(this));
+                    }
+                });
+            }
+        });
     }
 
     _switchPage(page) {
@@ -48,7 +135,7 @@ export default class UserSub extends React.Component {
     }
 
     render() {
-        const { users, total, limit, curPage, popupAdd } = this.state;
+        const { users, total, limit, curPage, popupAdd, addType, me, popupEdit, editFields } = this.state;
         const pageButtons = [];
         for (let i = 0; i < Math.ceil(total / limit); i++) {
             pageButtons.push(
@@ -79,29 +166,31 @@ export default class UserSub extends React.Component {
                         </Table.Header>
 
                         <Table.Body>
-                            {(users.map((user, i) => (
-                                <Table.Row key={i}>
-                                    <Table.Cell>{user.name}</Table.Cell>
-                                    <Table.Cell>{user.created_at}</Table.Cell>
-                                    <Table.Cell>
-                                        <Label ribbon={user.type === 'Administrator'} color={user.type === 'Administrator' ? 'orange' : 'grey'}>{user.type}</Label>
-                                    </Table.Cell>
-                                    <Table.Cell>
-                                        <Button animated color="green" basic>
-                                            <Button.Content hidden>Edit</Button.Content>
-                                            <Button.Content visible>
-                                                <Icon name="edit" />
-                                            </Button.Content>
-                                        </Button>
-                                        <Button animated color="red" basic>
-                                            <Button.Content hidden>Hapus</Button.Content>
-                                            <Button.Content visible>
-                                                <Icon name="trash" />
-                                            </Button.Content>
-                                        </Button>
-                                    </Table.Cell>
-                                </Table.Row>
-                            )))}
+                            {me !== null && (
+                                (users.map((user, i) => (
+                                    <Table.Row key={i}>
+                                        <Table.Cell>{user.name}</Table.Cell>
+                                        <Table.Cell>{moment(user.created_at).format('MMMM Do YYYY, h:mm:ss a')}</Table.Cell>
+                                        <Table.Cell>
+                                            <Label ribbon={user.type === 'Administrator'} color={user.type === 'Administrator' ? 'orange' : 'grey'}>{user.type}</Label>
+                                        </Table.Cell>
+                                        <Table.Cell>
+                                            <Button disabled={me.id === user.id} animated color="green" onClick={() => this._onEditPopup(user)} basic>
+                                                <Button.Content hidden>Edit</Button.Content>
+                                                <Button.Content visible>
+                                                    <Icon name="edit" />
+                                                </Button.Content>
+                                            </Button>
+                                            <Button disabled={me.id === user.id} animated color="red" onClick={() => this._onDeleteUser(user.id)} basic>
+                                                <Button.Content hidden>Hapus</Button.Content>
+                                                <Button.Content visible>
+                                                    <Icon name="trash" />
+                                                </Button.Content>
+                                            </Button>
+                                        </Table.Cell>
+                                    </Table.Row>
+                                )))
+                            )}
                         </Table.Body>
 
                         <Table.Footer>
@@ -139,15 +228,61 @@ export default class UserSub extends React.Component {
                             </Form.Field>
                             <Form.Field>
                                 <label>Username</label>
-                                <input required name="username" placeholder='Nama' />
+                                <input required name="username" placeholder='Username' />
                             </Form.Field>
                             <Form.Field>
                                 <label>Password</label>
-                                <input required name="password" type="password" placeholder='Nama' />
+                                <input required name="password" type="password" placeholder='Password' />
                             </Form.Field>
                             <Form.Field>
                                 <label>Level</label>
-                                <Select required fluid name="type" placeholder='Tipe Data' options={[
+                                <Select value={addType} required fluid onChange={(e, { value }) => this.setState({ addType: value })} placeholder="Level" options={[
+                                    { key: 0, value: 'Administrator', text: 'Administrator' },
+                                    { key: 1, value: 'Surveyor', text: 'Surveyor' }
+                                ]} />
+                            </Form.Field>
+                            <Divider />
+                            <Button type="submit">Simpan</Button>
+                        </Form>
+                    </Modal.Content>
+                </Modal>
+
+                {/* Edit Popup */}
+                <Modal open={popupEdit} onClose={() => this.setState({ popupEdit: false })} closeIcon>
+                    <Modal.Header>Edit Pengguna {editFields.name}</Modal.Header>
+                    <Modal.Content>
+                        <Form method="post" onSubmit={this._onSubmitEdit.bind(this)}>
+                            <Form.Field>
+                                <label>Nama</label>
+                                <input required value={editFields.name} onChange={(e) => {
+                                    let { editFields } = this.state;
+                                    editFields.name = e.target.value;
+                                    this.setState({ editFields });
+                                }} name="name" placeholder='Nama' />
+                            </Form.Field>
+                            <Form.Field>
+                                <label>Username</label>
+                                <input required value={editFields.username} onChange={(e) => {
+                                    let { editFields } = this.state;
+                                    editFields.username = e.target.value;
+                                    this.setState({ editFields });
+                                }} name="username" placeholder='Username' />
+                            </Form.Field>
+                            <Form.Field>
+                                <label>Password</label>
+                                <input value={editFields.password} onChange={(e) => {
+                                    let { editFields } = this.state;
+                                    editFields.password = e.target.value;
+                                    this.setState({ editFields });
+                                }} name="password" type="password" placeholder='Password (kosongkan jika tidak ingin merubah)' />
+                            </Form.Field>
+                            <Form.Field>
+                                <label>Level</label>
+                                <Select value={editFields.type} required fluid onChange={(e, { value }) => {
+                                    let { editFields } = this.state;
+                                    editFields.type = value;
+                                    this.setState({ editFields });
+                                }} placeholder="Level" options={[
                                     { key: 0, value: 'Administrator', text: 'Administrator' },
                                     { key: 1, value: 'Surveyor', text: 'Surveyor' }
                                 ]} />
