@@ -56,11 +56,11 @@ export default class Panel extends React.Component {
                 <Wait visible={loading} text={loadingText} />
                 <Container>
                     {/* Header */}
-                    <Segment stacked>
-                        <h1 style={{ textAlign: 'center' }}>MapSurvey Panel</h1>
+                    <Segment color="black" style={{ borderRadius: 0, borderBottomColor: '#ecf0f1', borderBottomWidth: 1, borderBottomStyle: 'solid' }} inverted>
+                        <h1 style={{ textAlign: 'center', fontWeight: 'lighter' }}>MapSurvey Panel</h1>
                     </Segment>
                     {/* Menu */}
-                    <Menu pointing inverted>
+                    <Menu style={{ borderRadius: 0 }} pointing inverted>
                         <Menu.Item content={(<Link to={`${this.props.match.path}/`}>Objek</Link>)} active={this._currentRoute() === '/' || this._currentRoute() === ''} />
                         <Menu.Item content={(<Link to={`${this.props.match.path}/users`}>Pengguna</Link>)} active={this._currentRoute() === '/users'} />
                         <Menu.Item content={(<Link to={`${this.props.match.path}/settings`}>Pengaturan</Link>)} active={this._currentRoute() === '/settings'} />

@@ -11,7 +11,7 @@ export default class UserSub extends React.Component {
     state = {
         users: [],
         total: 0,
-        limit: 2,
+        limit: 20,
         offset: 0,
         curPage: 1,
         popupAdd: false,
