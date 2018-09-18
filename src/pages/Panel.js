@@ -1,10 +1,12 @@
 import React from 'react';
 import { Container, Segment, Menu, Icon, Button } from 'semantic-ui-react';
 import { Link, Switch, Route } from 'react-router-dom';
+
 import ObjectSub from './subpages/ObjectSub';
 import { Public } from '../services/requests';
 import Wait from '../components/Wait';
 import UserSub from './subpages/UserSub';
+import SurveyorSub from './subpages/SurveyorSub';
 
 export default class Panel extends React.Component {
 
@@ -63,7 +65,7 @@ export default class Panel extends React.Component {
                     <Menu style={{ borderRadius: 0 }} pointing inverted>
                         <Menu.Item content={(<Link to={`${this.props.match.path}/`}>Objek</Link>)} active={this._currentRoute() === '/' || this._currentRoute() === ''} />
                         <Menu.Item content={(<Link to={`${this.props.match.path}/users`}>Pengguna</Link>)} active={this._currentRoute() === '/users'} />
-                        <Menu.Item content={(<Link to={`${this.props.match.path}/settings`}>Pengaturan</Link>)} active={this._currentRoute() === '/settings'} />
+                        <Menu.Item content={(<Link to={`${this.props.match.path}/surveyors`}>Surveyor</Link>)} active={this._currentRoute() === '/surveyors'} />
                         <Menu.Menu position="right">
                             <Menu.Item>
                                 <Button animated color="red" onClick={this._onLogout.bind(this)}>
@@ -77,8 +79,9 @@ export default class Panel extends React.Component {
                     </Menu>
                     {/* Content */}
                     <Switch>
-                        <Route exact path={`${this.props.match.path}/`} render={(props) => <ObjectSub {...props} me={this.state.user} setLoading={this._setLoading.bind(this)} />} />
-                        <Route path={`${this.props.match.path}/users`} render={(props) => <UserSub {...props} me={this.state.user} setLoading={this._setLoading.bind(this)} />} />
+                        <Route exact path={`${this.props.match.path}/`} render={(props) => <ObjectSub {...props} me={this.state.user} setLoading={this._setLoading.bind(this)} socket={this.props.socket} />} />
+                        <Route path={`${this.props.match.path}/users`} render={(props) => <UserSub {...props} me={this.state.user} setLoading={this._setLoading.bind(this)} socket={this.props.socket} />} />
+                        <Route path={`${this.props.match.path}/surveyors`} render={(props) => <SurveyorSub {...props} me={this.state.user} setLoading={this._setLoading.bind(this)} socket={this.props.socket} />} />
                     </Switch>
                 </Container>
             </div>
